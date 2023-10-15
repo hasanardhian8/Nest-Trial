@@ -8,53 +8,44 @@ import {
   Delete,
   Query,
 } from '@nestjs/common';
+import { UUIDValidationPipe } from 'src/pipes/uuid-validation.pipe';
 import { BooksService } from './books.service';
 import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
 import { FilterBookDto } from './dto/filter-book.dto';
+import { Book } from './entity/book.entity';
 
 @Controller('books')
 export class BooksController {
   constructor(private booksService: BooksService) {
     this.booksService = booksService;
   }
-  @Get()
-  getAllBooks() {
-    return this.booksService.getAllBook();
-  }
 
   @Get()
-  getBooks(@Query() filter: FilterBookDto) {
+  async getBooks(@Query() filter: FilterBookDto): Promise<Book[]> {
     return this.booksService.getBooks(filter);
   }
 
-  // @Get()
-  // getBooks(
-  //   @Query('title') title: string,
-  //   @Query('author') author: string,
-  //   @Query('category') category: string,
-  // ) {
-  //   return this.booksService.getBooks(title, author, category);
-  // }
-
   @Get('/:id')
-  getBook(@Param('id') id: string) {
-    return this.booksService.getBook(id);
+  async getBook(@Param('id', UUIDValidationPipe) id: string): Promise<void> {
+    return this.booksService.getBookById(id);
   }
 
   @Post()
-  // @UsePipes(ValidationPipe)
-  createBook(@Body() payload: CreateBookDto) {
-    return this.booksService.createBook(payload);
+  async createBook(@Body() payload: CreateBookDto): Promise<Book> {
+    return this.booksService.createBooks(payload);
   }
 
   @Put('/:id')
-  updateBook(@Param('id') id: string, @Body('id') payload: UpdateBookDto) {
-    return this.booksService.updateBook(id, payload);
+  async updateBook(
+    @Param('id', UUIDValidationPipe) id: string,
+    @Body() payload: UpdateBookDto,
+  ): Promise<Book> {
+    return this.booksService.updateBooks(id, payload);
   }
 
   @Delete('/:id')
-  deleteBook(@Param('id') id: string) {
-    return this.booksService.deleteBook(id);
+  async deleteBook(@Param('id', UUIDValidationPipe) id: string): Promise<void> {
+    return this.booksService.deleteBooks(id);
   }
 }
